@@ -36,5 +36,5 @@ CREATE TABLE `dolphin_crm`.`notes` (
     FOREIGN KEY (`contact_id`) REFERENCES `contact`(`id`),
     FOREIGN KEY (`created_by`) REFERENCES `users`(`id`)) ENGINE = InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
 
-INSERT INTO `users` (`password`, `email`) 
-VALUES ('$2y$10$ddIpI4n.X.BnDJJeK1bhY.heVPZZx7TG.sPkCrdjdyGXG2bu7snb6', 'admin@project2.com');
+INSERT INTO `users` (`firstname`, `lastname`, `password`, `email`, `role`) 
+VALUES ('John', 'Doe', '$2y$10$ddIpI4n.X.BnDJJeK1bhY.heVPZZx7TG.sPkCrdjdyGXG2bu7snb6', 'admin@project2.com', 'admin');
