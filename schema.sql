@@ -33,7 +33,7 @@ CREATE TABLE `dolphin_crm`.`notes` (
     `comment` TEXT NOT NULL,
     `created_by` INT NOT NULL ,
     `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (`contact_id`) REFERENCES `contact`(`contact_id`),
+    FOREIGN KEY (`contact_id`) REFERENCES `contact`(`id`),
     FOREIGN KEY (`created_by`) REFERENCES `users`(`id`)) ENGINE = InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
 
 INSERT INTO `users` (`password`, `email`) 
