@@ -1,0 +1,139 @@
+body, html {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+    background-color: #d8e0ec; 
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column; 
+}
+
+/* Banner */
+.banner {
+    width: 110%;
+    background-color: #1b1919; 
+    padding: 20px;
+    text-align: center;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px; 
+}
+
+.banner img {
+    height: 50px; 
+    width: auto;
+}
+
+.banner h1 {
+    margin: 0;
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.login-container {
+    width: 100%;
+    max-width: 500px; 
+    background-color: #ffffff; 
+    padding: 40px; 
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); 
+    border-radius: 8px; 
+    text-align: center;
+    margin-top: 20px; 
+}
+
+/* Form Heading */
+.login-container h1 {
+    font-size: 24px;
+    margin-bottom: 20px;
+    color: #34495e; 
+}
+
+/* Form Labels */
+.login-container label {
+    display: block;
+    font-size: 14px;
+    color: #34495e;
+    text-align: left;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+/* Input Fields */
+.login-container input[type="email"],
+.login-container input[type="password"] {
+    width: 100%;
+    padding: 12px; 
+    margin-bottom: 20px; 
+    border: 1px solid #ddd; 
+    border-radius: 4px; 
+    background-color: #f9f9f9; 
+    font-size: 14px;
+}
+
+/* Input Field Focus State */
+.login-container input[type="email"]:focus,
+.login-container input[type="password"]:focus {
+    border-color: #3498db; 
+    background-color: #fff; 
+    outline: none;
+    box-shadow: 0 0 5px rgba(52, 152, 219, 0.3); 
+}
+
+/* Submit Button */
+.login-container button {
+    width: 100%;
+    padding: 12px 15px;
+    background-color: #294db9; 
+    color: #fff; 
+    font-size: 16px;
+    font-weight: bold;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease; 
+}
+
+/* Submit Button Hover */
+.login-container button:hover {
+    background-color: #3498db; 
+}
+
+/* Error Message */
+.login-container .error {
+    color: #e74c3c; 
+    font-size: 14px;
+    margin-bottom: 15px;
+    text-align: left;
+}
+
+/* Success Message (if needed) */
+.login-container .success {
+    color: #2ecc71; 
+    font-size: 14px;
+    margin-bottom: 15px;
+    text-align: left;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .login-container {
+        padding: 20px;
+    }
+
+    .login-container h1 {
+        font-size: 20px;
+    }
+
+    .banner h1 {
+        font-size: 20px;
+    }
+
+    .banner img {
+        height: 40px; 
+    }
+}
