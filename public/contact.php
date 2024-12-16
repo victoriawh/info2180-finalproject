@@ -1,46 +1,71 @@
 <?php
-
 session_start();
 
+// Check if user is logged in and has the admin role
 if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
     header("Location: login.php");
     exit();
 }
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $firstname = $_POST['firstname'];
-    $lastname = $_POST['lastname'];
-    $email = $_POST['email'];
-    $password = password_hash($_POST['password'], PASSWORD_BCRYPT);
-    $role = $_POST['role'];
+// Database connection
+$conn = new mysqli('localhost', 'root', '', 'dolphin_crm');
 
-    $conn = new mysqli('localhost', 'root', '', 'dolphin_crm');
-
-    if ($conn->connect_error) {
-        die("Connection failed: " . $conn->connect_error);
-    }
-
-    $sql = "INSERT INTO users (firstname, lastname, email, password, role) VALUES (?, ?, ?, ?, ?)";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("sssss", $firstname, $lastname, $email, $password, $role);
-
-    if ($stmt->execute()) {
-        echo "New user added successfully";
-    } else {
-        echo "Error: " . $stmt->error;
-    }
-
-    $stmt->close();
-    $conn->close();
+// Check connection
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
 }
+
+// Fetch all users for "Assigned To" dropdown
+$user_list = [];
+$result = $conn->query("SELECT id, CONCAT(firstname, ' ', lastname) AS fullname FROM users");
+if ($result && $result->num_rows > 0) {
+    while ($row = $result->fetch_assoc()) {
+        $user_list[] = $row;
+    }
+}
+
+// Process form submission
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $title = htmlspecialchars(trim($_POST['title']));
+    $firstname = htmlspecialchars(trim($_POST['firstname']));
+    $lastname = htmlspecialchars(trim($_POST['lastname']));
+    $email = filter_var($_POST['email'], FILTER_SANITIZE_EMAIL);
+    $telephone = htmlspecialchars(trim($_POST['telephone']));
+    $company = htmlspecialchars(trim($_POST['company']));
+    $type = htmlspecialchars(trim($_POST['type']));
+    $assigned_to = intval($_POST['assigned_to']);
+    $created_by = $_SESSION['user_id'];
+    $current_time = date('Y-m-d H:i:s');
+
+    if (!empty($firstname) && !empty($lastname) && filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $sql = "INSERT INTO contact (title, firstname, lastname, email, telephone, company, type, assigned_to, created_by, created_at, updated_at) 
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("sssssssisss", 
+            $title, $firstname, $lastname, $email, $telephone, $company, $type, 
+            $assigned_to, $created_by, $current_time, $current_time
+        );
+
+        if ($stmt->execute()) {
+            echo "<p>New contact added successfully!</p>";
+        } else {
+            echo "<p>Error: " . $stmt->error . "</p>";
+        }
+        $stmt->close();
+    } else {
+        echo "<p>Please ensure all required fields are filled correctly.</p>";
+    }
+}
+
+$conn->close();
 ?>
 
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dolphin CRM - Add User</title>
+    <title>Dolphin CRM - Add Contact</title>
     <style>
         /* General Reset */
         * {
@@ -107,7 +132,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             margin-top: 60px; /* Adjusted to account for the header height */
         }
 
-        .add-user-container {
+        .add-contact-container {
             background-color: #fff;
             margin: 30px auto;
             padding: 20px;
@@ -116,7 +141,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
 
-        .add-user-container h1 {
+        .add-contact-container h1 {
             font-size: 1.8em;
             margin-bottom: 20px;
             text-align: center;
@@ -135,7 +160,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         input[type="text"],
         input[type="email"],
-        input[type="password"],
+        input[type="tel"],
         select {
             width: 100%;
             padding: 10px;
@@ -174,7 +199,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         /* Header Styling */
         header {
-            background-color: #1f2937;
+            background-color: #1f2937;  /* Same color as the sidebar */
             color: white;
             padding: 20px;
             display: flex;
@@ -201,17 +226,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         .logo-container h1 {
             margin: 0;
         }
-
-        /* Footer Styling */
-        footer {
-            background-color: #1f2937;
-            color: white;
-            text-align: center;
-            padding: 10px;
-            position: fixed;
-            bottom: 0;
-            width: 100%;
-        }
     </style>
 </head>
 <body>
@@ -227,50 +241,66 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <div class="sidebar">
         <ul>
             <li><a href="dashboard.php">Dashboard</a></li>
-            <li><a href="user.php">Users</a></li>
+            <li><a href="contacts.php">Contacts</a></li>
             <li><a href="logout.php">Logout</a></li>
         </ul>
     </div>
 
-    <!-- Main Content Area -->
+    <!-- Main Content -->
     <div class="main-content">
-        <div class="add-user-container">
-            <h1>Add User</h1>
+        <div class="add-contact-container">
+            <h1>Add New Contact</h1>
             <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post">
                 <div>
-                    <label for="firstname">First Name:</label>
+                    <label for="title">Title:</label>
+                    <select id="title" name="title" required>
+                        <option value="Mr">Mr</option>
+                        <option value="Mrs">Mrs</option>
+                        <option value="Ms">Ms</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="firstname">First Name</label>
                     <input type="text" id="firstname" name="firstname" required>
                 </div>
                 <div>
-                    <label for="lastname">Last Name:</label>
+                    <label for="lastname">Last Name</label>
                     <input type="text" id="lastname" name="lastname" required>
                 </div>
                 <div>
-                    <label for="email">Email:</label>
+                    <label for="email">Email</label>
                     <input type="email" id="email" name="email" required>
                 </div>
                 <div>
-                    <label for="password">Password:</label>
-                    <input type="password" id="password" name="password" required>
+                    <label for="telephone">Telephone</label>
+                    <input type="tel" id="telephone" name="telephone">
                 </div>
                 <div>
-                    <label for="role">Role:</label>
-                    <select id="role" name="role" required>
-                        <option value="user">User</option>
-                        <option value="admin">Admin</option>
-                    </select>
-                    <small>Only admin users can add new users.</small>
+                    <label for="company">Company</label>
+                    <input type="text" id="company" name="company">
                 </div>
-
-                <button type="submit">Add User</button>
+                <div>
+                    <label for="type">Type</label>
+                    <select id="type" name="type" required>
+                        <option value="Sales Lead">Sales Lead</option>
+                        <option value="Support">Support</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="assigned_to">Assigned To:</label>
+                    <select id="assigned_to" name="assigned_to" required>
+                        <option value="" disabled selected>Select a user</option>
+                        <?php foreach ($user_list as $user): ?>
+                            <option value="<?php echo $user['id']; ?>">
+                                <?php echo htmlspecialchars($user['fullname']); ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <button type="submit">Add Contact</button>
             </form>
-            <a href="users.php">Back to Users</a>
+            <a href="contacts.php">Back to Contacts</a>
         </div>
     </div>
-
-    <!-- Footer Section -->
-    <footer>
-        &copy; 2022 Dolphin CRM
-    </footer>
 </body>
 </html>

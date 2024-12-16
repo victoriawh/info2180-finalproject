@@ -192,7 +192,7 @@ $result = $conn->query($sql);
                 <img src="../assets/images/dolphin.jpg" alt="Dolphin Logo" style="width: 20px; height: auto;"> 
                 <h1>Dolphin CRM</h1>
             </div>
-            <a href="contact.php" class="add-btn"> + Add New Contact</a>
+		<a href="contact.php" class="add-btn"> + Add New Contact</a>
         </header>
         
         <div class="sidebar">
@@ -204,19 +204,19 @@ $result = $conn->query($sql);
 
                 <div class="setter">
                 <img width="50" height="50" src="https://img.icons8.com/ios/50/contacts.png" alt="contacts" style="width: 30px; height: auto;"/>
-                <li><a href="#">New Contact</a></li>
+                <li><a href="contact.php">New Contact</a></li>
                 </div>
 
                 <div class="setter">
                 <img width="50" height="50" src="https://img.icons8.com/ios/50/conference-call--v1.png" alt="conference-call--v1" style="width: 30px; height: auto;"/>
-                <li><a href="#">Users</a></li>
+                <li><a href="user.php">Users</a></li>
                 </div>
 
                 <hr>
 
                 <div class="setter">
                 <img width="50" height="50" src="https://img.icons8.com/ios/50/exit--v1.png" alt="exit--v1" style="width: 30px; height: auto;"/>
-                <li><a href="#">Logout</a></li>
+                <li><a href="logout.php">Logout</a></li>
                 </div>
             </ul>
         </div>
@@ -247,10 +247,10 @@ $result = $conn->query($sql);
                 <?php while ($row = $result-> fetch_assoc()): ?>
                     <tr>
                         <td><?php echo htmlspecialchars($row['title']); ?></td>
-                        <td><?php echo htmlspecialchars($row['full_name']); ?></td>
+                        <td><?php echo htmlspecialchars($row['firstname']).' '.htmlspecialchars($row['lastname']); ?></td>
                         <td><?php echo htmlspecialchars($row['email']); ?></td>
                         <td><?php echo htmlspecialchars($row['company']); ?></td>
-                        <td><?php echo htmlspecialchars($row['type_of_contact']); ?></td>
+                        <td><?php echo htmlspecialchars($row['type']); ?></td>
                         <td><a href="view_contact.php?id=<?php echo $row['id']; ?>">View Details</a></td>
                     </td>
                 <?php endwhile; ?>

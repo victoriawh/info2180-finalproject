@@ -24,16 +24,16 @@ $filter = isset($_GET['filter']) ? $_GET['filter'] : 'all';
 // Dynamic SQL query based on filters
 switch ($filter) {
     case 'sales_leads':
-        $sql = "SELECT * FROM contacts WHERE type = 'Sales Lead'";
+        $sql = "SELECT * FROM contact WHERE type = 'Sales Lead'";
         break;
     case 'support':
-        $sql = "SELECT * FROM contacts WHERE type = 'Support'";
+        $sql = "SELECT * FROM contact WHERE type = 'Support'";
         break;
     case 'assigned_to':
-        $sql = "SELECT * FROM contacts WHERE assigned_to = $userID";
+        $sql = "SELECT * FROM contact WHERE assigned_to = $userID";
         break;
     default:
-        $sql = "SELECT * FROM contacts";
+        $sql = "SELECT * FROM contact";
         break;
 }
 
