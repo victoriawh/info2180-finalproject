@@ -1,119 +1,136 @@
 <?php
-session_start();
-
-// Database connection
 $host = "localhost";
 $username = "root";
 $password = "";
 $basename = "dolphin_crm";
 
 $conn = new mysqli($host, $username, $password, $basename);
+
 if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
+    die("There was a problem with the connection");
 }
 
-// Check if user is logged in
-if (!isset($_SESSION['user_id'])) {
-    header("Location: login.php");
-    exit();
+// Retrieve contact ID
+$contact_id = isset($_GET['id']) ? intval($_GET['id']) : 0;
+if (!$contact_id) {
+    die("Invalid contact ID.");
 }
 
-$userID = $_SESSION['user_id']; // Current logged-in user ID
-$filter = isset($_GET['filter']) ? $_GET['filter'] : 'all';
+// Fetch contact details
+$sql_contact = "SELECT * FROM contact WHERE id = $contact_id";
+$result_contact = $conn->query($sql_contact);
 
-// Dynamic SQL query based on filters
-switch ($filter) {
-    case 'sales_leads':
-        $sql = "SELECT * FROM contact WHERE type = 'Sales Lead'";
-        break;
-    case 'support':
-        $sql = "SELECT * FROM contact WHERE type = 'Support'";
-        break;
-    case 'assigned_to':
-        $sql = "SELECT * FROM contact WHERE assigned_to = $userID";
-        break;
-    default:
-        $sql = "SELECT * FROM contact";
-        break;
+if (!$result_contact || $result_contact->num_rows == 0) {
+    die("Contact not found.");
 }
 
-$result = $conn->query($sql);
+$contact = $result_contact->fetch_assoc();
+
+// Handle assign and type change actions
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $action = $_POST['action'];
+    $user_id = 1; // Simulated logged-in user ID
+
+    if ($action === 'assign') {
+        // Assign contact to the user
+        $sql_assign = "UPDATE contact SET assigned_to = $user_id, updated_at = NOW() WHERE id = $contact_id";
+        $conn->query($sql_assign);
+    } elseif ($action === 'change_type') {
+        // Switch contact type between Sales Lead and Support
+        $new_type = $contact['type'] === 'Sales Lead' ? 'Support' : 'Sales Lead';
+        $sql_type = "UPDATE contact SET type = '$new_type', updated_at = NOW() WHERE id = $contact_id";
+        $conn->query($sql_type);
+    } elseif ($action === 'add_note') {
+        // Add a new note
+        $comment = $conn->real_escape_string($_POST['comment']);
+        $sql_note = "INSERT INTO notes (contact_id, comment, created_by, created_at) VALUES ($contact_id, '$comment', $user_id, NOW())";
+        $conn->query($sql_note);
+    }
+
+    // Refresh the page to reflect changes
+    header("Location: view_contact.php?id=$contact_id");
+    exit;
+}
+
+// Fetch notes for the contact
+$sql_notes = "SELECT n.comment, n.created_at, u.firstname, u.lastname 
+              FROM notes n 
+              JOIN users u ON n.created_by = u.id 
+              WHERE n.contact_id = $contact_id 
+              ORDER BY n.created_at DESC";
+$result_notes = $conn->query($sql_notes);
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Dashboard</title>
-    <link rel="stylesheet" href="style.css"> <!-- External stylesheet reference -->
+    <title>Contact Details</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f8f9fa; }
+        h1 { color: #333; }
+        .container { max-width: 800px; margin: 20px auto; padding: 20px; background-color: #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .details, .notes { margin-bottom: 20px; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 10px; border: 1px solid #ddd; }
+        th { background-color: #343a40; color: #fff; text-align: left; }
+        form { margin: 10px 0; }
+        textarea { width: 100%; height: 80px; margin: 10px 0; }
+        button { background-color: #007bff; color: #fff; padding: 8px 12px; border: none; border-radius: 5px; cursor: pointer; }
+        button:hover { background-color: #0056b3; }
+    </style>
 </head>
 <body>
-    <header>
-        <div class="logo-container">
-            <img src="../assets/images/dolphin.jpg" alt="Dolphin Logo" style="width: 20px; height: auto;"> 
-            <h1>Dolphin CRM</h1>
-        </div>
-        <a href="contact.php" class="add-btn">+ Add New Contact</a>
-    </header>
-    
-    <div class="sidebar">
-        <ul>
-            <li><a href="#">Home</a></li>
-            <li><a href="#">New Contact</a></li>
-            <li><a href="#">Users</a></li>
-            <hr>
-            <li><a href="#">Logout</a></li>
-        </ul>
+<div class="container">
+    <h1>Contact Details</h1>
+    <div class="details">
+        <p><strong>Full Name:</strong> <?php echo htmlspecialchars($contact['title'] . ' ' . $contact['firstname'] . ' ' . $contact['lastname']); ?></p>
+        <p><strong>Email:</strong> <?php echo htmlspecialchars($contact['email']); ?></p>
+        <p><strong>Company:</strong> <?php echo htmlspecialchars($contact['company']); ?></p>
+        <p><strong>Telephone:</strong> <?php echo htmlspecialchars($contact['telephone']); ?></p>
+        <p><strong>Type:</strong> <?php echo htmlspecialchars($contact['type']); ?></p>
+        <p><strong>Assigned To:</strong> <?php echo $contact['assigned_to'] ? "User ID: " . $contact['assigned_to'] : "Not Assigned"; ?></p>
+        <p><strong>Created At:</strong> <?php echo htmlspecialchars($contact['created_at']); ?></p>
+        <p><strong>Last Updated:</strong> <?php echo htmlspecialchars($contact['updated_at']); ?></p>
     </div>
-    
-    <main>
-        <h2>Dashboard</h2>
-        <hr>
-        <br>
-        <div class="filter-links">
-            <p>Filter By:</p>
-            <a href="?filter=all">All Contacts</a>
-            <a href="?filter=sales_leads">Sales Leads</a>
-            <a href="?filter=support">Support</a>
-            <a href="?filter=assigned_to">Assigned to me</a>
-        </div>
 
-        <table>
-            <tr>
-                <th>Title</th>
-                <th>Full Name</th>
-                <th>Email</th>
-                <th>Company</th>
-                <th>Type of Contact</th>
-                <th>Details</th>
-            </tr>
+    <form method="POST">
+        <button type="submit" name="action" value="assign">Assign to Me</button>
+        <button type="submit" name="action" value="change_type">
+            Switch to <?php echo $contact['type'] === 'Sales Lead' ? 'Support' : 'Sales Lead'; ?>
+        </button>
+    </form>
 
-            <?php if ($result && $result->num_rows > 0): ?>
-                <?php while ($row = $result->fetch_assoc()): ?>
+    <h2>Notes</h2>
+    <div class="notes">
+        <?php if ($result_notes && $result_notes->num_rows > 0): ?>
+            <table>
+                <tr>
+                    <th>Comment</th>
+                    <th>Added By</th>
+                    <th>Date</th>
+                </tr>
+                <?php while ($note = $result_notes->fetch_assoc()): ?>
                     <tr>
-                        <td><?php echo htmlspecialchars($row['title']); ?></td>
-                        <td><?php echo htmlspecialchars($row['firstname'] . ' ' . $row['lastname']); ?></td>
-                        <td><?php echo htmlspecialchars($row['email']); ?></td>
-                        <td><?php echo htmlspecialchars($row['company']); ?></td>
-                        <td>
-                            <?php if ($row['type'] === 'Sales Lead'): ?>
-                                <span class="badge badge-sales">Sales Lead</span>
-                            <?php elseif ($row['type'] === 'Support'): ?>
-                                <span class="badge badge-support">Support</span>
-                            <?php endif; ?>
-                        </td>
-                        <td>
-                            <a class="view-link" href="view_contact.php?id=<?php echo $row['id']; ?>">View Details</a>
-                        </td>
+                        <td><?php echo htmlspecialchars($note['comment']); ?></td>
+                        <td><?php echo htmlspecialchars($note['firstname'] . ' ' . $note['lastname']); ?></td>
+                        <td><?php echo htmlspecialchars($note['created_at']); ?></td>
                     </tr>
                 <?php endwhile; ?>
-            <?php else: ?>
-                <tr>
-                    <td colspan="6">No contacts found.</td>
-                </tr>
-            <?php endif; ?>
-        </table>
-    </main>
+            </table>
+        <?php else: ?>
+            <p>No notes available.</p>
+        <?php endif; ?>
+    </div>
+
+    <form method="POST">
+        <textarea name="comment" placeholder="Add a new note..." required></textarea>
+        <button type="submit" name="action" value="add_note">Add Note</button>
+    </form>
+</div>
 </body>
 </html>
-<?php $conn->close(); ?>
+
+<?php
+$conn->close();
+?>

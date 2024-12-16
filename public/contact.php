@@ -257,6 +257,8 @@ $conn->close();
                         <option value="Mr">Mr</option>
                         <option value="Mrs">Mrs</option>
                         <option value="Ms">Ms</option>
+                        <option value="Dr">Dr</option>
+                        <option value="Prof">Prof</option>
                     </select>
                 </div>
                 <div>
