@@ -49,6 +49,22 @@ if($_SERVER['REQUEST_METHOD'] ==='POST'){
 	<meta charset = "UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>Add Note to Contact</title>
+	<script>
+        // Automatically load data when the page loads
+        window.addEventListener('DOMContentLoaded', function () {
+            const xhr = new XMLHttpRequest();
+            xhr.open('GET', 'data.txt', true); // Replace 'data.txt' with your endpoint or file
+            xhr.onload = function() {
+                if (xhr.status === 200) {
+                    document.getElementById('content').innerHTML = xhr.responseText;
+                } else {
+                    console.error("Error fetching data.");
+                    document.getElementById('content').innerHTML = "<p>Error loading data.</p>";
+                }
+            };
+            xhr.send();
+        });
+    </script>
 </head>
 <body>
 	<h2>Add Note to Contact</h2>

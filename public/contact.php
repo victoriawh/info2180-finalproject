@@ -85,7 +85,7 @@ $conn->close();
 
         /* Sidebar Navigation */
         .sidebar {
-            background-color: #ffffff;
+            background-color: #fff;
             width: 250px;
             height: 100vh;
             position: fixed;
@@ -199,7 +199,7 @@ $conn->close();
 
         /* Header Styling */
         header {
-            background-color: #1f2937;  /* Same color as the sidebar */
+            background-color: #343a40;  
             color: white;
             padding: 20px;
             display: flex;
@@ -226,7 +226,32 @@ $conn->close();
         .logo-container h1 {
             margin: 0;
         }
+	.setter{
+                margin: 30px;
+                display: flex;
+                align-items: center;
+                width: 1.5%;
+                height: auto;
+            }
     </style>
+<script>
+        function loadData(filter) {
+            const xhr = new XMLHttpRequest();
+            xhr.open('GET', `?ajax=1&filter=${filter}`, true);
+            xhr.onload = function() {
+                if (xhr.status === 200) {
+                    document.getElementById('dynamic-content').innerHTML = xhr.responseText;
+                } else {
+                    console.error("Error fetching data.");
+                }
+            };
+            xhr.send();
+        }
+        window.onload = function() {
+            loadData('all');
+        };
+    </script>
+
 </head>
 <body>
     <!-- Header Section -->
@@ -240,9 +265,28 @@ $conn->close();
     <!-- Sidebar Navigation -->
     <div class="sidebar">
         <ul>
-            <li><a href="dashboard.php">Dashboard</a></li>
-            <li><a href="contacts.php">Contacts</a></li>
-            <li><a href="logout.php">Logout</a></li>
+            	<div class="setter">
+                <img width="50" height="50" src="https://img.icons8.com/ios/50/home--v1.png" alt="home--v1" style="width: 30px; height: auto;"/>
+                <li><a href="dashboard.php">Home</a></li>
+                </div>
+
+            	<div class="setter">
+                <img width="50" height="50" src="https://img.icons8.com/ios/50/contacts.png" alt="contacts" style="width: 30px; height: auto;"/>
+                <li><a href="#">New Contact</a></li>
+                </div>
+
+		<div class="setter">
+                <img width="50" height="50" src="https://img.icons8.com/ios/50/conference-call--v1.png" alt="conference-call--v1" style="width: 30px; height: auto;"/>
+		<li><a href="user.php">Users</a></li>
+                </div>
+
+                <hr>
+
+                <div class="setter">
+                <img width="50" height="50" src="https://img.icons8.com/ios/50/exit--v1.png" alt="exit--v1" style="width: 30px; height: auto;"/>
+                <li><a href="logout.php">Logout</a></li>
+                </div>
+
         </ul>
     </div>
 
@@ -301,8 +345,23 @@ $conn->close();
                 </div>
                 <button type="submit">Add Contact</button>
             </form>
-            <a href="contacts.php">Back to Contacts</a>
+            <a href="dashboard.php">Back to Contacts</a>
         </div>
     </div>
+<script>
+        window.addEventListener('DOMContentLoaded', function () {
+            const xhr = new XMLHttpRequest();
+            xhr.open('GET', 'data.txt', true); // Replace 'data.txt' with your endpoint or file
+            xhr.onload = function() {
+                if (xhr.status === 200) {
+                    document.getElementById('content').innerHTML = xhr.responseText;
+                } else {
+                    console.error("Error fetching data.");
+                    document.getElementById('content').innerHTML = "<p>Error loading data.</p>";
+                }
+            };
+            xhr.send();
+        });
+    </script>
 </body>
 </html>

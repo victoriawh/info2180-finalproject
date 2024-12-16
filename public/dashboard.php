@@ -29,6 +29,41 @@ switch ($filter){
 }
 
 $result = $conn->query($sql);
+if (isset($_GET['ajax'])) {
+    $filter = $_GET['filter'] ?? 'all';
+
+    switch ($filter) {
+        case 'sales_leads':
+            $sql = "SELECT * FROM contact WHERE type = 'Sales Lead'";
+            break;
+        case 'support':
+            $sql = "SELECT * FROM contact WHERE type = 'Support'";
+            break;
+        case 'assigned_to':
+            $sql = "SELECT * FROM contact WHERE assigned_to = $userID";
+            break;
+        default:
+            $sql = "SELECT * FROM contact";
+            break;
+    }
+
+    $result = $conn->query($sql);
+    if ($result && $result->num_rows > 0) {
+        while ($row = $result->fetch_assoc()) {
+            echo "<tr>
+                <td>" . htmlspecialchars($row['title']) . "</td>
+                <td>" . htmlspecialchars($row['firstname']) . " " . htmlspecialchars($row['lastname']) . "</td>
+                <td>" . htmlspecialchars($row['email']) . "</td>
+                <td>" . htmlspecialchars($row['company']) . "</td>
+                <td>" . htmlspecialchars($row['type']) . "</td>
+                <td><a href='view_contact.php?id=" . $row['id'] . "'>View Details</a></td>
+            </tr>";
+        }
+    } else {
+        echo "<tr><td colspan='6'>No contacts found.</td></tr>";
+    }
+    exit; // Ensure only AJAX response is sent.
+}
 ?>
 
 <!DOCTYPE html>
@@ -185,6 +220,23 @@ $result = $conn->query($sql);
 
             <div class="add-btn">float: right; margin: 10px 0; padding: 8px 12px; background-color: #007bff; color: #fff; text-decoration: none; border-radius: 5px</div>
         </style>
+	<script>
+        function loadData(filter) {
+            const xhr = new XMLHttpRequest();
+            xhr.open('GET', `?ajax=1&filter=${filter}`, true);
+            xhr.onload = function() {
+                if (xhr.status === 200) {
+                    document.getElementById('dynamic-content').innerHTML = xhr.responseText;
+                } else {
+                    console.error("Error fetching data.");
+                }
+            };
+            xhr.send();
+        }
+        window.onload = function() {
+            loadData('all');
+        };
+    </script>
     </head>
     <body>
         <header>
@@ -226,12 +278,12 @@ $result = $conn->query($sql);
         <hr>
         <br>
         <div class="filter-links">
-            <p> Filter By: </p>
+        <p>Filter By:</p>
             <a href="?filter=all">All Contacts</a>
             <a href="?filter=sales_leads">Sales Leads</a>
             <a href="?filter=support">Support</a>
             <a href="?filter=assigned_to">Assigned to me</a>
-        </div>
+    </div>
 
         <table>
             <tr>

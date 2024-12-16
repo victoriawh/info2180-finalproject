@@ -174,7 +174,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         /* Header Styling */
         header {
-            background-color: #1f2937;
+            background-color: #343a40;
             color: white;
             padding: 20px;
             display: flex;
@@ -212,7 +212,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             bottom: 0;
             width: 100%;
         }
+	.setter{
+                margin: 30px;
+                display: flex;
+                align-items: center;
+                width: 1.5%;
+                height: auto;
+            }
+
     </style>
+    <script>
+        // Automatically load data when the page loads
+        window.addEventListener('DOMContentLoaded', function () {
+            const xhr = new XMLHttpRequest();
+            xhr.open('GET', 'data.txt', true); // Replace 'data.txt' with your endpoint or file
+            xhr.onload = function() {
+                if (xhr.status === 200) {
+                    document.getElementById('content').innerHTML = xhr.responseText;
+                } else {
+                    console.error("Error fetching data.");
+                    document.getElementById('content').innerHTML = "<p>Error loading data.</p>";
+                }
+            };
+            xhr.send();
+        });
+    </script>
 </head>
 <body>
     <!-- Header Section -->
@@ -225,12 +249,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     <!-- Sidebar Navigation -->
     <div class="sidebar">
-        <ul>
-            <li><a href="dashboard.php">Dashboard</a></li>
-            <li><a href="user.php">Users</a></li>
-            <li><a href="logout.php">Logout</a></li>
-        </ul>
-    </div>
+            <ul>
+                <div class="setter">
+                <img width="50" height="50" src="https://img.icons8.com/ios/50/home--v1.png" alt="home--v1" style="width: 30px; height: auto;"/>
+                <li><a href="dashboard.php">Home</a></li>
+                </div>
+
+                <div class="setter">
+                <img width="50" height="50" src="https://img.icons8.com/ios/50/contacts.png" alt="contacts" style="width: 30px; height: auto;"/>
+                <li><a href="contact.php">New Contact</a></li>
+                </div>
+
+                <div class="setter">
+                <img width="50" height="50" src="https://img.icons8.com/ios/50/conference-call--v1.png" alt="conference-call--v1" style="width: 30px; height: auto;"/>
+                <li><a href="user.php">Users</a></li>
+                </div>
+
+                <hr>
+
+                <div class="setter">
+                <img width="50" height="50" src="https://img.icons8.com/ios/50/exit--v1.png" alt="exit--v1" style="width: 30px; height: auto;"/>
+                <li><a href="logout.php">Logout</a></li>
+                </div>
+            </ul>
+        </div>
+
 
     <!-- Main Content Area -->
     <div class="main-content">
@@ -264,13 +307,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 <button type="submit">Add User</button>
             </form>
-            <a href="users.php">Back to Users</a>
+            <a href="user.php">Back to Users</a>
         </div>
     </div>
-
-    <!-- Footer Section -->
-    <footer>
-        &copy; 2022 Dolphin CRM
-    </footer>
 </body>
 </html>

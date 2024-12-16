@@ -164,7 +164,32 @@ $result = $conn->query($sql);
         tr:hover {
             background-color: #f3f4f6;
         }
+	.setter{
+                margin: 30px;
+                display: flex;
+                align-items: center;
+                width: 1.5%;
+                height: auto;
+            }
+
     </style>
+<script>
+        // Automatically load data when the page loads
+        window.addEventListener('DOMContentLoaded', function () {
+            const xhr = new XMLHttpRequest();
+            xhr.open('GET', 'data.txt', true); // Replace 'data.txt' with your endpoint or file
+            xhr.onload = function() {
+                if (xhr.status === 200) {
+                    document.getElementById('content').innerHTML = xhr.responseText;
+                } else {
+                    console.error("Error fetching data.");
+                    document.getElementById('content').innerHTML = "<p>Error loading data.</p>";
+                }
+            };
+            xhr.send();
+        });
+    </script>
+
 </head>
 <body>
     <!-- Header -->
@@ -177,30 +202,31 @@ $result = $conn->query($sql);
 
     <!-- Sidebar -->
     <div class="sidebar">
-        <ul>
-            <li>
-                <a href="dashboard.php">
-                    <img src="https://img.icons8.com/ios/50/home--v1.png" alt="Home" style="width: 20px;"> Home
-                </a>
-            </li>
-            <li>
-                <a href="contact.php">
-                    <img src="https://img.icons8.com/ios/50/contacts.png" alt="Contacts" style="width: 20px;"> New Contact
-                </a>
-            </li>
-            <li>
-                <a href="#">
-                    <img src="https://img.icons8.com/ios/50/conference-call--v1.png" alt="Users" style="width: 20px;"> Users
-                </a>
-            </li>
-            <hr>
-            <li>
-                <a href="logout.php">
-                    <img src="https://img.icons8.com/ios/50/exit--v1.png" alt="Logout" style="width: 20px;"> Logout
-                </a>
-            </li>
-        </ul>
-    </div>
+            <ul>
+                <div class="setter">
+                <img width="50" height="50" src="https://img.icons8.com/ios/50/home--v1.png" alt="home--v1" style="width: 30px; height: auto;"/>
+                <li><a href="dashboard.php">Home</a></li>
+                </div>
+
+                <div class="setter">
+                <img width="50" height="50" src="https://img.icons8.com/ios/50/contacts.png" alt="contacts" style="width: 30px; height: auto;"/>
+                <li><a href="contact.php">New Contact</a></li>
+                </div>
+
+                <div class="setter">
+                <img width="50" height="50" src="https://img.icons8.com/ios/50/conference-call--v1.png" alt="conference-call--v1" style="width: 30px; height: auto;"/>
+                <li><a href="user.php">Users</a></li>
+                </div>
+
+                <hr>
+
+                <div class="setter">
+                <img width="50" height="50" src="https://img.icons8.com/ios/50/exit--v1.png" alt="exit--v1" style="width: 30px; height: auto;"/>
+                <li><a href="logout.php">Logout</a></li>
+                </div>
+            </ul>
+        </div>
+
 
     <!-- Main Content -->
     <div class="main">
